@@ -1,0 +1,1949 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>印章设计工具 - Seal Designer (SVG)</title>
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --card-bg: #ffffff;
+      --text: #3d3226;
+      --text-secondary: #8b7355;
+      --accent: #0e0b0b;
+      --accent-light: #f5e5e5;
+      --border: #e0d5c7;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      --radius: 14px;
+      --radius-sm: 9px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #f7f3eb 0%, #ede4d5 30%, #f0e8d8 60%, #f5efe5 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at 20% 80%, rgba(194, 59, 59, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(139, 115, 85, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 20px 24px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .header-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, #c23b3b, #a83232);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(194, 59, 59, 0.25);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #3d3226;
+      letter-spacing: 1.5px;
+    }
+
+    .header .subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .card-header {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fefdfb;
+      user-select: none;
+    }
+
+    .card-header .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .card-body {
+      padding: 14px 18px;
+    }
+
+    .segmented {
+      display: flex;
+      background: #f5f0eb;
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .seg-btn {
+      flex: 1;
+      padding: 9px 12px;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      border: none;
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    .seg-btn.active {
+      background: #fff;
+      color: var(--accent);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      font-weight: 600;
+    }
+
+    .seg-btn:hover:not(.active) {
+      color: var(--text);
+    }
+
+    .control-group {
+      margin-bottom: 14px;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .control-label .val {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 11px;
+      background: var(--accent-light);
+      padding: 2px 8px;
+      border-radius: 6px;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to right, var(--accent-light), #e8d0d0);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2.5px solid var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(194, 59, 59, 0.2);
+      transition: var(--transition);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: #fefdfb;
+      font-size: 13px;
+      color: var(--text);
+      transition: var(--transition);
+    }
+
+    select:focus,
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(194, 59, 59, 0.08);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b7355' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+    }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      padding: 2px;
+      background: #fff;
+      transition: var(--transition);
+    }
+
+    input[type="color"]:hover {
+      border-color: var(--accent);
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border-radius: 6px;
+      border: none;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .toggle-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #d5cdc3;
+      border-radius: 26px;
+      transition: var(--transition);
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: var(--transition);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .toggle-switch input:checked+.toggle-slider {
+      background: var(--accent);
+    }
+
+    .toggle-switch input:checked+.toggle-slider::before {
+      transform: translateX(18px);
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #fef8f8;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #c23b3b, #a83232);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(194, 59, 59, 0.28);
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(194, 59, 59, 0.38);
+    }
+
+    .btn-export {
+      background: linear-gradient(135deg, #2d5a27, #1e3d1a);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(45, 90, 39, 0.28);
+      font-weight: 600;
+    }
+
+    .btn-export:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(45, 90, 39, 0.38);
+    }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0;
+    }
+
+    .color-presets {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .color-swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(194, 59, 59, 0.15);
+    }
+
+    .preview-card {
+      position: sticky;
+      top: 20px;
+    }
+
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .preview-svg-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 460px;
+      width: 100%;
+      background-image: linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      border-radius: 12px;
+      border: 2px dashed #d8cec0;
+      overflow: hidden;
+    }
+
+    .preview-svg-wrap svg {
+      display: block;
+      margin: 24px;
+    }
+
+    .export-section {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .export-section .btn {
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .quick-presets {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .quick-preset {
+      padding: 10px 6px;
+      text-align: center;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      transition: var(--transition);
+      background: #fff;
+      line-height: 1.4;
+    }
+
+    .quick-preset:hover {
+      border-color: #d4a0a0;
+      background: #fef8f8;
+      transform: translateY(-1px);
+    }
+
+    .quick-preset .emoji {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #2d2d2d;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .input-row .num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #f5f0eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    .effect-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .param-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 920px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-card {
+        position: static;
+      }
+
+      .param-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <div class="header">
+      <div class="header-icon">🦭</div>
+      <div>
+        <h1>印章设计工具</h1>
+        <div class="subtitle">Seal Designer · SVG矢量印章 · 个人娱乐使用· 仿真效果</div>
+        <div class="subtitle">提示：该在线电子印章设计工具所输出的图片资源，仅供用户作为设计之参考和娱乐，本项目不承担用户因非法使用该制作工具所生成的图片以及其它资源，对自身和他人造成的任何形式的伤害与损失。 请严格遵守相关法律法规，勿将本站资源使用于违法环境中。</div>
+      </div>
+    </div>
+
+    <div class="main-layout">
+      <!-- ========== LEFT: Controls ========== -->
+      <div>
+        <!-- 1. Shape + Type + Layout -->
+        <div class="card">
+          <div class="card-header"><span class="dot"></span> 印章样式</div>
+          <div class="card-body" style="padding:12px 14px;">
+            <div class="control-group" style="margin-bottom:10px;">
+              <div class="control-label"><span>印章形状</span></div>
+              <div class="segmented" id="shapeBtns">
+                <button class="seg-btn active" data-shape="circle">⭕ 圆形</button>
+                <button class="seg-btn" data-shape="ellipse">⬭ 椭圆</button>
+                <button class="seg-btn" data-shape="square">⬜ 方形</button>
+              </div>
+            </div>
+            <div class="control-group" style="margin-bottom:10px;">
+              <div class="control-label"><span>印文类型</span></div>
+              <div class="segmented" id="sealTypeBtns">
+                <button class="seg-btn active" data-type="yangwen">朱文（阳文）</button>
+                <button class="seg-btn" data-type="yinwen">白文（阴文）</button>
+              </div>
+            </div>
+            <div class="control-group" style="margin-bottom:0;">
+              <div class="control-label"><span>排版样式</span></div>
+              <div class="segmented" id="layoutStyleBtns">
+                <button class="seg-btn active" data-layout="gongzhang">🏛 公章样式</button>
+                <button class="seg-btn" data-layout="fangzhang">📜 方章样式</button>
+                <button class="seg-btn" data-layout="free">✏️ 自由排版</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Border Style -->
+        <div class="card">
+          <div class="card-header"><span class="dot"></span> 外框样式</div>
+          <div class="card-body">
+            <div class="control-group" style="margin-bottom:10px;">
+              <div class="segmented" id="borderStyleBtns">
+                <button class="seg-btn" data-border="double">⦿ 双边线</button>
+                <button class="seg-btn active" data-border="single">○ 单边线</button>
+                <button class="seg-btn" data-border="none">◌ 无边框</button>
+              </div>
+            </div>
+            <div class="control-group" id="borderGapGroup">
+              <div class="control-label"><span>线框间距</span><span class="val" id="borderGapVal">8</span></div>
+              <input type="range" id="borderGap" min="2" max="30" value="8" step="1">
+            </div>
+            <div class="control-group" style="margin-bottom:0;">
+              <div class="control-label"><span>外框粗细</span><span class="val" id="borderWidthVal">5</span></div>
+              <input type="range" id="borderWidth" min="1" max="20" value="7" step="0.5">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Center Style -->
+        <div class="card" id="centerStyleCard">
+          <div class="card-header"><span class="dot"></span> 中心样式</div>
+          <div class="card-body">
+            <div class="control-group" style="margin-bottom:8px;">
+              <div class="segmented" id="centerStyleBtns">
+                <button class="seg-btn active" data-center="star">☆ 五角星</button>
+                <button class="seg-btn" data-center="text">文 文字</button>
+                <button class="seg-btn" data-center="none">－ 无</button>
+              </div>
+            </div>
+            <div id="starSizeGroup">
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>五角星大小</span><span class="val" id="starSizeVal">140</span></div>
+                <input type="range" id="starSize" min="0" max="260" value="90" step="2">
+              </div>
+            </div>
+            <div id="centerSymbolGroup" style="display:none;margin-top:8px;">
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>中心符号</span></div>
+                <input type="text" id="centerSymbol" placeholder="输入符号文字" value="★" maxlength="4">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Text Content (公章) -->
+        <div class="card" id="gongzhangTextCard">
+          <div class="card-header"><span class="dot"></span> 公章文字内容</div>
+          <div class="card-body">
+            <div class="control-group">
+              <div class="control-label"><span>上弧文字（公司全称）</span></div>
+              <input type="text" id="arcTopText" placeholder="沿上弧排列的公司名称" value="北京市林以行网络科技有限公司" maxlength="50">
+            </div>
+            <div class="control-group">
+              <div class="control-label"><span>下弧文字（编号）</span></div>
+              <input type="text" id="arcBottomText" placeholder="底部弧线编号" value="11011411137281" maxlength="30">
+            </div>
+            <hr class="divider">
+            <div class="control-group">
+              <div class="control-label"><span>中心文字第1行</span></div>
+              <input type="text" id="centerText1" placeholder="中心第1行，可留空" value="" maxlength="16">
+            </div>
+            <div class="control-group">
+              <div class="control-label"><span>中心文字第2行</span></div>
+              <input type="text" id="centerText2" placeholder="可留空" value="" maxlength="16">
+            </div>
+            <hr class="divider">
+            <div class="control-group">
+              <div class="control-label"><span>编号（底部小字）</span></div>
+              <input type="text" id="serialNumber" placeholder="印章编号，可留空" value="" maxlength="30">
+            </div>
+            <div class="control-group" style="margin-bottom:0;">
+              <div class="control-label"><span>附文（最底部文字）</span></div>
+              <input type="text" id="gongzhangSubText" placeholder="可留空" value="" maxlength="30">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4b. Text Content (方章) -->
+        <div class="card" id="fangzhangTextCard" style="display:none;">
+          <div class="card-header"><span class="dot"></span> 方章文字内容</div>
+          <div class="card-body">
+            <div class="control-group" style="margin-bottom:10px;">
+              <div class="control-label"><span>排列方向</span></div>
+              <div class="segmented" id="arrangementBtns">
+                <button class="seg-btn active" data-arrange="horizontal">横排</button>
+                <button class="seg-btn" data-arrange="vertical">竖排</button>
+              </div>
+            </div>
+            <div id="fangzhangRows" style="display:flex;flex-direction:column;gap:8px;">
+              <div class="input-row"><span class="num">1</span><input type="text" class="fang-text-input"
+                  placeholder="第1行" value="人言信息" maxlength="20"></div>
+              <div class="input-row"><span class="num">2</span><input type="text" class="fang-text-input"
+                  placeholder="第2行" value="科技" maxlength="20"></div>
+              <div class="input-row"><span class="num">3</span><input type="text" class="fang-text-input"
+                  placeholder="第3行" value="有限" maxlength="20"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;margin-bottom:12px;">
+              <button class="btn btn-outline btn-sm" id="fangAddRowBtn">＋ 添加行</button>
+              <button class="btn btn-outline btn-sm" id="fangRemoveRowBtn">－ 移除行</button>
+            </div>
+            <hr class="divider">
+            <div class="control-group" style="margin-bottom:0;">
+              <div class="control-label"><span>附文（底部小字）</span></div>
+              <input type="text" id="fangzhangSubText" placeholder="可留空" value="" maxlength="30">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4c. Text Content (自由排版) -->
+        <div class="card" id="freeTextCard" style="display:none;">
+          <div class="card-header"><span class="dot"></span> 自由排版文字</div>
+          <div class="card-body">
+            <div id="freeRows" style="display:flex;flex-direction:column;gap:8px;">
+              <div class="input-row"><span class="num">1</span><input type="text" class="free-text-input"
+                  placeholder="第1行" value="人言信息" maxlength="20"></div>
+              <div class="input-row"><span class="num">2</span><input type="text" class="free-text-input"
+                  placeholder="第2行" value="科技" maxlength="20"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;margin-bottom:12px;">
+              <button class="btn btn-outline btn-sm" id="freeAddRowBtn">＋ 添加行</button>
+              <button class="btn btn-outline btn-sm" id="freeRemoveRowBtn">－ 移除行</button>
+            </div>
+            <hr class="divider">
+            <div class="control-group" style="margin-bottom:0;">
+              <div class="control-label"><span>附文（底部小字）</span></div>
+              <input type="text" id="freeSubText" placeholder="可留空" value="" maxlength="30">
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Adjustment Parameters -->
+        <div class="card">
+          <div class="card-header"><span class="dot"></span> 调整参数</div>
+          <div class="card-body">
+            <!-- ── 总体 ── -->
+            <div class="section-label"
+              style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">━━ 总体</div>
+            <div class="control-group">
+              <div class="control-label"><span>印章总尺寸</span><span class="val" id="sealSizeVal">420</span></div>
+              <input type="range" id="sealSize" min="200" max="700" value="420" step="5">
+            </div>
+
+            <!-- ── 上弧文字 ── -->
+            <div id="arcOnlyParams">
+              <div class="section-label"
+                style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;margin-top:2px;font-weight:600;">━━
+                上弧文字</div>
+              <div class="param-row">
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>字号</span><span class="val" id="fontSizeVal">56</span></div>
+                  <input type="range" id="fontSize" min="22" max="100" value="56" step="1">
+                </div>
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>字间距</span><span class="val" id="topCharGapVal">0</span></div>
+                  <input type="range" id="topCharGap" min="-8" max="20" value="0" step="0.5">
+                </div>
+              </div>
+              <div class="param-row">
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>弧度</span><span class="val" id="topArcDegVal">260</span></div>
+                  <input type="range" id="topArcDeg" min="120" max="300" value="260" step="5">
+                </div>
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>距边框距离</span><span class="val" id="topMarginVal">28</span></div>
+                  <input type="range" id="topMargin" min="0" max="60" value="37" step="1">
+                </div>
+              </div>
+
+              <!-- ── 下弧文字 ── -->
+              <div class="section-label"
+                style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;margin-top:4px;font-weight:600;">━━
+                下弧文字</div>
+              <div class="param-row">
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>字号</span><span class="val" id="bottomFontSizeVal">32</span></div>
+                  <input type="range" id="bottomFontSize" min="14" max="60" value="26" step="1">
+                </div>
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>字间距</span><span class="val" id="bottomCharGapVal">0</span></div>
+                  <input type="range" id="bottomCharGap" min="-5" max="15" value="-3" step="0.5">
+                </div>
+              </div>
+              <div class="param-row">
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>弧度</span><span class="val" id="bottomArcDegVal">160</span></div>
+                  <input type="range" id="bottomArcDeg" min="90" max="240" value="90" step="5">
+                </div>
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>距边框距离</span><span class="val" id="bottomMarginVal">28</span></div>
+                  <input type="range" id="bottomMargin" min="0" max="60" value="26" step="1">
+                </div>
+              </div>
+            </div><!-- end arcOnlyParams -->
+
+            <!-- ── 中心文字（公章/方章/自由排版） ── -->
+            <div class="section-label"
+              style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;margin-top:4px;font-weight:600;"
+              id="centerParamsLabel">━━ 中心文字</div>
+            <div class="param-row" id="centerParamsRow1">
+              <div class="control-group" style="margin-bottom:0;" id="centerFontSizeGroup">
+                <div class="control-label"><span>字号</span><span class="val" id="centerFontSizeVal">52</span></div>
+                <input type="range" id="centerFontSize" min="20" max="100" value="52" step="1">
+              </div>
+              <div class="control-group" style="margin-bottom:0;" id="centerLineGapGroup">
+                <div class="control-label"><span>行间距</span><span class="val" id="centerLineGapVal">10</span></div>
+                <input type="range" id="centerLineGap" min="0" max="30" value="10" step="1">
+              </div>
+            </div>
+            <div class="param-row" id="centerParamsRow2">
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>距五星距离</span><span class="val" id="centerOffsetVal">14</span></div>
+                <input type="range" id="centerOffset" min="0" max="50" value="14" step="1">
+              </div>
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>距下弧间距</span><span class="val" id="centerBottomGapVal">10</span></div>
+                <input type="range" id="centerBottomGap" min="0" max="50" value="10" step="1">
+              </div>
+            </div>
+
+            <!-- ── 五星 ── -->
+            <div id="starParams">
+              <div class="section-label"
+                style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;margin-top:2px;font-weight:600;">━━
+                五星</div>
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>五星大小</span><span class="val" id="starSizeVal">140</span></div>
+                <input type="range" id="starSize" min="0" max="260" value="140" step="2">
+              </div>
+            </div>
+
+            <!-- ── 自由排版 ── -->
+            <div id="freeSpacingGroup">
+              <div class="section-label"
+                style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;margin-top:2px;font-weight:600;">━━
+                自由排版行距</div>
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>行间距</span><span class="val" id="freeSpacingVal">8</span></div>
+                <input type="range" id="freeSpacing" min="0" max="40" value="8" step="1">
+              </div>
+            </div>
+
+            <!-- ── 方章 ── -->
+            <div id="fangzhangSpacingGroup">
+              <div class="section-label"
+                style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;margin-top:2px;font-weight:600;">━━
+                方章行距</div>
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>行间距</span><span class="val" id="fangLineGapVal">8</span></div>
+                <input type="range" id="fangLineGap" min="0" max="40" value="8" step="1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Color -->
+        <div class="card">
+          <div class="card-header"><span class="dot"></span> 印章颜色</div>
+          <div class="card-body">
+            <div class="control-group" style="margin-bottom:0;">
+              <div style="display:flex;align-items:center;gap:8px">
+                <input type="color" id="sealColor" value="#c23b3b">
+                <div class="color-presets" id="colorPresets">
+                  <span class="color-swatch active" data-color="#c23b3b" style="background:#c23b3b"></span>
+                  <span class="color-swatch" data-color="#8b1a1a" style="background:#8b1a1a"></span>
+                  <span class="color-swatch" data-color="#b22222" style="background:#b22222"></span>
+                  <span class="color-swatch" data-color="#1a1a1a" style="background:#1a1a1a"></span>
+                  <span class="color-swatch" data-color="#1a3a6b" style="background:#1a3a6b"></span>
+                  <span class="color-swatch" data-color="#2d5a27" style="background:#2d5a27"></span>
+                  <span class="color-swatch" data-color="#6b3a8b" style="background:#6b3a8b"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Font -->
+        <div class="card">
+          <div class="card-header"><span class="dot"></span> 字体选择</div>
+          <div class="card-body">
+            <div class="control-group" style="margin-bottom:10px;">
+              <select id="fontFamily">
+                <option value="'SimSun','STSong','NSimSun',serif">宋体（公章标准）</option>
+                <option value="'SimHei','STHeiti','PingFang SC','Microsoft YaHei',sans-serif">黑体</option>
+                <option value="'KaiTi','STKaiti',serif">楷体</option>
+                <option value="'FangSong','STFangsong',serif">仿宋</option>
+                <option value="'LiSu','STLiti',serif">隶书</option>
+              </select>
+            </div>
+            <div class="toggle-row" style="margin-bottom:0;">
+              <div>
+                <div class="toggle-label">𝐁 文字加粗</div>
+              </div>
+              <label class="toggle-switch"><input type="checkbox" id="boldToggle" checked><span
+                  class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Realistic Effects -->
+        <div class="card">
+          <div class="card-header"><span class="dot"></span> 仿真效果</div>
+          <div class="card-body">
+            <div class="toggle-row" style="margin-bottom:10px;">
+              <div>
+                <div class="toggle-label">🖌 开启仿真</div>
+                <div class="toggle-desc">油墨颗粒感 · 纸张纹理 · 盖印磨损</div>
+              </div>
+              <label class="toggle-switch"><input type="checkbox" id="realisticToggle"><span
+                  class="toggle-slider"></span></label>
+            </div>
+            <div id="wearParams">
+              <div class="control-group" style="margin-bottom:0;">
+                <div class="control-label"><span>老化程度</span><span class="val" id="wearLevelVal">1</span></div>
+                <input type="range" id="wearLevel" min="0.5" max="2" value="1" step="0.05">
+              </div>
+              <div class="param-row" style="margin-top:10px;">
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>区域X偏移</span><span class="val" id="wearXVal">0</span></div>
+                  <input type="range" id="wearX" min="-200" max="200" value="0" step="2">
+                </div>
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>区域Y偏移</span><span class="val" id="wearYVal">0</span></div>
+                  <input type="range" id="wearY" min="-200" max="200" value="0" step="2">
+                </div>
+              </div>
+              <div class="param-row">
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>区域大小%</span><span class="val" id="wearSizeVal">80</span></div>
+                  <input type="range" id="wearSize" min="20" max="200" value="80" step="5">
+                </div>
+                <div class="control-group" style="margin-bottom:0;">
+                  <div class="control-label"><span>边缘羽化</span><span class="val" id="wearFeatherVal">20</span></div>
+                  <input type="range" id="wearFeather" min="0" max="60" value="20" step="2">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== RIGHT: Preview ========== -->
+      <div class="preview-card">
+        <div class="card">
+          <div class="card-header">
+            <span class="dot"></span> 印章预览
+            <span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">棋盘格 = 透明背景</span>
+          </div>
+          <div class="preview-container">
+            <div class="preview-svg-wrap" id="previewWrap">
+              <!-- SVG will be inserted here -->
+            </div>
+            <div class="export-section">
+              <button class="btn btn-export" id="exportPngBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                导出PNG（透明背景）
+              </button>
+              <button class="btn btn-outline" id="exportSvgBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                </svg>
+                导出SVG
+              </button>
+            </div>
+            <div class="quick-presets">
+              <div class="quick-preset" data-preset="company"><span class="emoji">🏢</span>公司公章</div>
+              <div class="quick-preset" data-preset="contract"><span class="emoji">📋</span>合同专用章</div>
+              <div class="quick-preset" data-preset="finance"><span class="emoji">💰</span>财务专用章</div>
+              <div class="quick-preset" data-preset="personal"><span class="emoji">👤</span>个人名章</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ─── State ────────────────────────────────────
+      var S = {
+        shape: 'circle', sealType: 'yangwen', layoutStyle: 'gongzhang', arrangement: 'horizontal',
+        borderStyle: 'single', borderGap: 8,
+        sealSize: 420, borderWidth: 5,
+        fontSize: 56, bottomFontSize: 32, centerFontSize: 52, starSize: 140,
+        topCharGap: 0, bottomCharGap: 0,
+        topArcDeg: 260, bottomArcDeg: 160,
+        topMargin: 28, bottomMargin: 28,
+        centerLineGap: 10, centerOffset: 14, centerBottomGap: 10,
+        sealColor: '#c23b3b', fontFamily: "'SimSun','STSong','NSimSun',serif",
+        centerStyle: 'star', centerSymbol: '★',
+        arcTopText: 'xx公司',
+        arcBottomText: '1231231231312',
+        centerText1: '', centerText2: '',
+        serialNumber: '',
+        gongzhangSubText: '',
+        fangTexts: ['人言信息', '科技', '有限'],
+        fangzhangSubText: '',
+        freeTexts: ['人言信息', '科技'], freeSpacing: 8, fangLineGap: 8, freeSubText: '',
+        realistic: false, wearLevel: 1, wearX: 0, wearY: 0, wearSize: 80, wearFeather: 20, bold: true
+      };
+
+      var previewWrap = document.getElementById('previewWrap');
+      var toast = document.getElementById('toast');
+      var toastTmr;
+
+      // ─── Canvas Noise Aging ──
+      // Loads sealNoisy.png into an offscreen canvas (not Image) for aging.
+      // Canvas-to-canvas drawImage does not taint the destination canvas,
+      // so this works for both preview and PNG export without SecurityError.
+      // Falls back to programmatic speckles if the texture fails to load.
+
+      var noiseTexCanvas = null;
+      var noiseTexReady = false;
+      (function loadNoiseTexture() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'sealNoisy.png', true);
+        xhr.responseType = 'blob';
+        xhr.onload = function () {
+          if (xhr.status === 200 || xhr.status === 0) {
+            var url = URL.createObjectURL(xhr.response);
+            var img = new Image();
+            img.onload = function () {
+              var c = document.createElement('canvas');
+              c.width = img.width;
+              c.height = img.height;
+              c.getContext('2d').drawImage(img, 0, 0);
+              noiseTexCanvas = c;
+              noiseTexReady = true;
+              URL.revokeObjectURL(url);
+              if (S.realistic) render();
+            };
+            img.onerror = function () {
+              URL.revokeObjectURL(url);
+              console.warn('噪音纹理解码失败，使用程序化噪点');
+            };
+            img.src = url;
+          }
+        };
+        xhr.onerror = function () { console.warn('噪音纹理加载失败，使用程序化噪点'); };
+        xhr.send();
+      })();
+
+      var noiseSeed = Date.now();
+
+      // Export-safe noise generator — used only during PNG export.
+      // destination-in composite mode: lower alpha = more ink eaten away = more visible wear.
+      // Three layers stacked: (1) full-canvas fiber base, (2) irregular wear patches, (3) deep aging pits.
+      function generateExportNoise(size, density) {
+        var c = document.createElement('canvas');
+        c.width = size; c.height = size;
+        var nctx = c.getContext('2d');
+
+        var seed = noiseSeed;
+        function rand() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+
+        // ── Layer 1: full-canvas paper-fiber base ──
+        // 70% of ink retained with gentle random variation (alpha 170–200 = eats 22%–33%)
+        var idata = nctx.createImageData(size, size);
+        var d = idata.data;
+        for (var py = 0; py < size; py++) {
+          for (var px = 0; px < size; px++) {
+            var i = (py * size + px) * 4;
+            var a = 170 + Math.round(rand() * 30);
+            d[i] = d[i + 1] = d[i + 2] = 255;
+            d[i + 3] = a;
+          }
+        }
+
+        // ── Layer 2: irregular wear patches (stamp-surface voids) ──
+        // Larger radius blobs with deep alpha holes (alpha 60–160 = eats 37%–76%)
+        var patchCount = Math.floor(size * density * 0.5);
+        for (var b = 0; b < patchCount; b++) {
+          var bx = Math.floor(rand() * size);
+          var by = Math.floor(rand() * size);
+          var br = 2 + rand() * 12 * density;
+          var minY = Math.max(0, Math.floor(by - br));
+          var maxY = Math.min(size - 1, Math.ceil(by + br));
+          var minX = Math.max(0, Math.floor(bx - br));
+          var maxX = Math.min(size - 1, Math.ceil(bx + br));
+          for (var qy = minY; qy <= maxY; qy++) {
+            for (var qx = minX; qx <= maxX; qx++) {
+              var dist = Math.sqrt((qx - bx) * (qx - bx) + (qy - by) * (qy - by));
+              if (dist <= br) {
+                var idx2 = (qy * size + qx) * 4;
+                var t = dist / br; // 0=center, 1=edge
+                // Center deep eat, edge fade — alpha 60 at center → 76% ink removal
+                var patchAlpha = Math.round(60 + t * 100 + rand() * 30);
+                if (patchAlpha < d[idx2 + 3]) d[idx2 + 3] = patchAlpha;
+              }
+            }
+          }
+        }
+
+        // ── Layer 3: deep pinhole pits (simulates stamp-surface damage) ──
+        // Small, very dark alpha holes (alpha 30–90 = eats 65%–88%)
+        var pitCount = Math.floor(size * size * density * 0.008);
+        for (var p = 0; p < pitCount; p++) {
+          var px2 = Math.floor(rand() * size);
+          var py2 = Math.floor(rand() * size);
+          var pr = 0.3 + rand() * 2.5;
+          var pminY = Math.max(0, Math.floor(py2 - pr));
+          var pmaxY = Math.min(size - 1, Math.ceil(py2 + pr));
+          var pminX = Math.max(0, Math.floor(px2 - pr));
+          var pmaxX = Math.min(size - 1, Math.ceil(px2 + pr));
+          for (var ry = pminY; ry <= pmaxY; ry++) {
+            for (var rx = pminX; rx <= pmaxX; rx++) {
+              var pdist = Math.sqrt((rx - px2) * (rx - px2) + (ry - py2) * (ry - py2));
+              if (pdist <= pr) {
+                var pidx = (ry * size + rx) * 4;
+                var pt = pdist / pr;
+                var pitAlpha = Math.round(30 + pt * 60);
+                if (pitAlpha < d[pidx + 3]) d[pidx + 3] = pitAlpha;
+              }
+            }
+          }
+        }
+
+        nctx.putImageData(idata, 0, 0);
+        noiseSeed = seed;
+        return c;
+      }
+
+      function applyCanvasNoise() {
+        var existingSvg = previewWrap.querySelector('svg');
+        if (!S.realistic) {
+          if (existingSvg) existingSvg.style.display = '';
+          var oldC0 = previewWrap.querySelector('canvas.seal-canvas');
+          if (oldC0) oldC0.remove();
+          return;
+        }
+        if (!existingSvg) return;
+
+        var size = S.sealSize;
+        var svgStr = new XMLSerializer().serializeToString(existingSvg);
+        var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+
+        var srcImg = new Image();
+        srcImg.onload = function () {
+          var canvas = document.createElement('canvas');
+          canvas.className = 'seal-canvas';
+          canvas.width = size; canvas.height = size;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(srcImg, 0, 0, size, size);
+          URL.revokeObjectURL(url);
+
+          if (!S.realistic) {
+            existingSvg.style.display = '';
+            return;
+          }
+
+          // ── Apply noise texture with region clipping ──
+          // 1. Save clean copy
+          var cleanOrig = document.createElement('canvas');
+          cleanOrig.width = size; cleanOrig.height = size;
+          cleanOrig.getContext('2d').drawImage(canvas, 0, 0);
+
+          // 2. Use real noise texture image for aging (destination-in)
+          //    Random offset per render for unique wear pattern each time
+          var offsetX = Math.floor(Math.random() * 300);
+          var offsetY = Math.floor(Math.random() * 300);
+          var texScale = 0.8 + S.wearLevel * 0.6; // wearLevel scales texture coverage
+
+          ctx.save();
+          ctx.globalCompositeOperation = 'destination-in';
+          var texSize = Math.max(size * 1.2, size);
+          if (noiseTexReady && noiseTexCanvas) {
+            // Draw noise texture — its semi-transparent pixels eat away the ink
+            ctx.drawImage(noiseTexCanvas, -offsetX, -offsetY, texSize * texScale, texSize * texScale);
+          } else {
+            // Fallback to programmatic noise
+            var fallbackTex = generateExportNoise(size, S.wearLevel);
+            ctx.drawImage(fallbackTex, 0, 0);
+          }
+          ctx.restore();
+
+          // 3. Restore clean ink outside the wear region via inverse radial gradient
+          var cxR = size / 2 + S.wearX;
+          var cyR = size / 2 + S.wearY;
+          var regionR = (size / 2) * (S.wearSize / 100);
+          var feather = S.wearFeather;
+
+          var blendMask = document.createElement('canvas');
+          blendMask.width = size; blendMask.height = size;
+          var bmCtx = blendMask.getContext('2d');
+          var invGrad = bmCtx.createRadialGradient(cxR, cyR, Math.max(0, regionR - feather * 0.3), cxR, cyR, regionR + feather);
+          invGrad.addColorStop(0, 'rgba(255,255,255,0)');
+          invGrad.addColorStop(0.5, 'rgba(255,255,255,0.15)');
+          invGrad.addColorStop(1, 'rgba(255,255,255,1)');
+          bmCtx.fillStyle = invGrad;
+          bmCtx.fillRect(0, 0, size, size);
+
+          var restoreC = document.createElement('canvas');
+          restoreC.width = size; restoreC.height = size;
+          var rCtx = restoreC.getContext('2d');
+          rCtx.drawImage(cleanOrig, 0, 0);
+          rCtx.globalCompositeOperation = 'destination-in';
+          rCtx.drawImage(blendMask, 0, 0);
+
+          ctx.drawImage(restoreC, 0, 0);
+
+          // Replace preview
+          var oldC = previewWrap.querySelector('canvas.seal-canvas');
+          if (oldC) oldC.remove();
+          canvas.style.display = 'block';
+          canvas.style.margin = '24px';
+          previewWrap.appendChild(canvas);
+          existingSvg.style.display = 'none';
+        };
+        srcImg.src = url;
+      }
+
+      function toastMsg(msg) {
+        toast.textContent = msg; toast.classList.add('show');
+        clearTimeout(toastTmr); toastTmr = setTimeout(function () { toast.classList.remove('show'); }, 2000);
+      }
+
+      // ─── Read inputs ──────────────────────────────
+      function readInputs() {
+        S.sealSize = parseInt(document.getElementById('sealSize').value);
+        S.borderWidth = parseFloat(document.getElementById('borderWidth').value);
+        S.borderGap = parseInt(document.getElementById('borderGap').value);
+        S.fontSize = parseInt(document.getElementById('fontSize').value);
+        S.bottomFontSize = parseInt(document.getElementById('bottomFontSize').value);
+        S.centerFontSize = parseInt(document.getElementById('centerFontSize').value);
+        S.starSize = parseInt(document.getElementById('starSize').value);
+        S.topCharGap = parseFloat(document.getElementById('topCharGap').value);
+        S.bottomCharGap = parseFloat(document.getElementById('bottomCharGap').value);
+        S.topArcDeg = parseInt(document.getElementById('topArcDeg').value);
+        S.bottomArcDeg = parseInt(document.getElementById('bottomArcDeg').value);
+        S.topMargin = parseInt(document.getElementById('topMargin').value);
+        S.bottomMargin = parseInt(document.getElementById('bottomMargin').value);
+        S.centerLineGap = parseInt(document.getElementById('centerLineGap').value);
+        S.centerOffset = parseInt(document.getElementById('centerOffset').value);
+        S.centerBottomGap = parseInt(document.getElementById('centerBottomGap').value);
+        S.sealColor = document.getElementById('sealColor').value;
+        S.fontFamily = document.getElementById('fontFamily').value;
+        S.arcTopText = document.getElementById('arcTopText').value.trim();
+        S.arcBottomText = document.getElementById('arcBottomText').value.trim();
+        S.centerText1 = document.getElementById('centerText1').value.trim();
+        S.centerText2 = document.getElementById('centerText2').value.trim();
+        S.serialNumber = document.getElementById('serialNumber').value.trim();
+        S.gongzhangSubText = document.getElementById('gongzhangSubText').value.trim();
+        S.centerSymbol = document.getElementById('centerSymbol').value.trim() || '★';
+        S.fangTexts = Array.from(document.querySelectorAll('#fangzhangRows .fang-text-input')).map(function (e) { return e.value.trim(); }).filter(function (t) { return t.length > 0; });
+        S.fangzhangSubText = document.getElementById('fangzhangSubText').value.trim();
+        S.freeTexts = Array.from(document.querySelectorAll('#freeRows .free-text-input')).map(function (e) { return e.value.trim(); }).filter(function (t) { return t.length > 0; });
+        S.freeSpacing = parseInt(document.getElementById('freeSpacing').value);
+        S.fangLineGap = parseInt(document.getElementById('fangLineGap').value);
+        S.freeSubText = document.getElementById('freeSubText').value.trim();
+        S.realistic = document.getElementById('realisticToggle').checked;
+        S.wearLevel = parseFloat(document.getElementById('wearLevel').value);
+        S.wearX = parseInt(document.getElementById('wearX').value);
+        S.wearY = parseInt(document.getElementById('wearY').value);
+        S.wearSize = parseInt(document.getElementById('wearSize').value);
+        S.wearFeather = parseInt(document.getElementById('wearFeather').value);
+        S.bold = document.getElementById('boldToggle').checked;
+      }
+
+      function syncDisp() {
+        document.getElementById('sealSizeVal').textContent = S.sealSize;
+        document.getElementById('borderWidthVal').textContent = S.borderWidth;
+        document.getElementById('borderGapVal').textContent = S.borderGap;
+        document.getElementById('fontSizeVal').textContent = S.fontSize;
+        document.getElementById('bottomFontSizeVal').textContent = S.bottomFontSize;
+        document.getElementById('centerFontSizeVal').textContent = S.centerFontSize;
+        document.getElementById('starSizeVal').textContent = S.starSize;
+        document.getElementById('topCharGapVal').textContent = S.topCharGap;
+        document.getElementById('bottomCharGapVal').textContent = S.bottomCharGap;
+        document.getElementById('topArcDegVal').textContent = S.topArcDeg;
+        document.getElementById('bottomArcDegVal').textContent = S.bottomArcDeg;
+        document.getElementById('topMarginVal').textContent = S.topMargin;
+        document.getElementById('bottomMarginVal').textContent = S.bottomMargin;
+        document.getElementById('centerLineGapVal').textContent = S.centerLineGap;
+        document.getElementById('centerOffsetVal').textContent = S.centerOffset;
+        document.getElementById('centerBottomGapVal').textContent = S.centerBottomGap;
+        document.getElementById('freeSpacingVal').textContent = S.freeSpacing;
+        document.getElementById('fangLineGapVal').textContent = S.fangLineGap;
+        document.getElementById('wearLevelVal').textContent = S.wearLevel;
+        document.getElementById('wearXVal').textContent = S.wearX;
+        document.getElementById('wearYVal').textContent = S.wearY;
+        document.getElementById('wearSizeVal').textContent = S.wearSize;
+        document.getElementById('wearFeatherVal').textContent = S.wearFeather;
+      }
+
+      function updateUI() {
+        document.querySelectorAll('#shapeBtns .seg-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.shape === S.shape); });
+        document.querySelectorAll('#sealTypeBtns .seg-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.type === S.sealType); });
+        document.querySelectorAll('#layoutStyleBtns .seg-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.layout === S.layoutStyle); });
+        document.querySelectorAll('#borderStyleBtns .seg-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.border === S.borderStyle); });
+        document.querySelectorAll('#centerStyleBtns .seg-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.center === S.centerStyle); });
+        document.querySelectorAll('#arrangementBtns .seg-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.arrange === S.arrangement); });
+
+        document.getElementById('gongzhangTextCard').style.display = S.layoutStyle === 'gongzhang' ? '' : 'none';
+        document.getElementById('fangzhangTextCard').style.display = S.layoutStyle === 'fangzhang' ? '' : 'none';
+        document.getElementById('freeTextCard').style.display = S.layoutStyle === 'free' ? '' : 'none';
+        document.getElementById('borderGapGroup').style.display = S.borderStyle === 'double' ? '' : 'none';
+
+        var isGongzhang = S.layoutStyle === 'gongzhang';
+        var isRound = S.shape === 'circle' || S.shape === 'ellipse';
+        var showArcParams = isGongzhang && isRound;
+        document.getElementById('centerStyleCard').style.display = isGongzhang ? '' : 'none';
+        document.getElementById('starSizeGroup').style.display = S.centerStyle === 'star' ? '' : 'none';
+        document.getElementById('centerSymbolGroup').style.display = S.centerStyle === 'text' ? '' : 'none';
+        document.getElementById('centerFontSizeGroup').style.display = S.layoutStyle === 'free' ? 'none' : '';
+        document.getElementById('freeSpacingGroup').style.display = S.layoutStyle === 'free' ? '' : 'none';
+        document.getElementById('fangzhangSpacingGroup').style.display = S.layoutStyle === 'fangzhang' ? '' : 'none';
+        document.getElementById('arcOnlyParams').style.display = showArcParams ? '' : 'none';
+        document.getElementById('starParams').style.display = (isGongzhang && S.centerStyle === 'star') ? '' : 'none';
+        document.getElementById('centerParamsLabel').style.display = S.layoutStyle === 'free' ? 'none' : '';
+        document.getElementById('centerParamsRow1').style.display = S.layoutStyle === 'free' ? 'none' : '';
+        document.getElementById('centerParamsRow2').style.display = isGongzhang ? '' : 'none';
+        // Show/hide wear params
+        document.getElementById('wearParams').style.display = S.realistic ? '' : 'none';
+
+        document.querySelectorAll('#colorPresets .color-swatch').forEach(function (sw) { sw.classList.toggle('active', sw.dataset.color === S.sealColor); });
+        syncDisp();
+      }
+
+      // ─── SVG Utility: star polygon points ─────────
+      function starPoints(cx, cy, outerR, innerR) {
+        var pts = [];
+        for (var i = 0; i < 10; i++) {
+          var r = i % 2 === 0 ? outerR : innerR;
+          var angle = (-90 + i * 36) * Math.PI / 180;
+          pts.push((cx + Math.cos(angle) * r).toFixed(2) + ',' + (cy + Math.sin(angle) * r).toFixed(2));
+        }
+        return pts.join(' ');
+      }
+
+      // ─── SVG Utility: rounded rect path ───────────
+      function roundedRectPath(x, y, w, h, r) {
+        return 'M' + (x + r) + ',' + y +
+          'L' + (x + w - r) + ',' + y +
+          'Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) +
+          'L' + (x + w) + ',' + (y + h - r) +
+          'Q' + (x + w) + ',' + (y + h) + ' ' + (x + w - r) + ',' + (y + h) +
+          'L' + (x + r) + ',' + (y + h) +
+          'Q' + x + ',' + (y + h) + ' ' + x + ',' + (y + h - r) +
+          'L' + x + ',' + (y + r) +
+          'Q' + x + ',' + y + ' ' + (x + r) + ',' + y +
+          'Z';
+      }
+
+      // ─── Arc character positions/rotations ────────
+      // Calculates {x, y, rotDeg} for each character along an arc
+      // side: 'top' or 'bottom'
+      function computeArcChars(text, cx, cy, baseR, arcDeg, side, isEllipse, offset, charSpacing) {
+        var chars = text.split('');
+        var n = chars.length;
+        var results = [];
+        if (n === 0) return results;
+
+        var aspect = isEllipse ? 0.75 : 1.0;
+        var R = baseR + offset;
+
+        // In SVG coordinates (y-down, angles measured clockwise from +x):
+        // Top arc center at angle = 3*PI/2 (top of circle = -90°)
+        // Bottom arc center at angle = PI/2 (bottom of circle = 90°)
+        var centerAngle = side === 'top' ? -Math.PI / 2 : Math.PI / 2;
+
+        var halfArc = (arcDeg / 2) * Math.PI / 180;
+        var totalArc = 2 * halfArc + charSpacing * (n - 1) * Math.PI / 180;
+        var startAngle = centerAngle - totalArc / 2;
+        var stepAngle = n > 1 ? totalArc / (n - 1) : 0;
+
+        for (var i = 0; i < n; i++) {
+          var theta = startAngle + i * stepAngle;
+
+          // Position on ellipse
+          var posX = cx + R * Math.cos(theta);
+          var posY = cy + R * aspect * Math.sin(theta);
+
+          // Tangent direction for ellipse: derivative = (-R*sin(θ), R*aspect*cos(θ))
+          var tx = -R * Math.sin(theta);
+          var ty = R * aspect * Math.cos(theta);
+          var tangentAngle = Math.atan2(ty, tx);
+
+          // Rotation for text:
+          // Top arc: text faces outward, reads along CCW tangent → rotation = tangentAngle
+          // Bottom arc: text faces inward, reads along CW tangent → rotation = tangentAngle + PI
+          var rotRad;
+          // Top arc: text follows tangent angle (faces outward, readable along curve)
+          // Bottom arc: tangent at bottom points left; add PI so text faces outward (away from center), right-side up
+          if (side === 'top') {
+            rotRad = tangentAngle;
+          } else {
+            rotRad = tangentAngle + Math.PI;
+          }
+          var rotDeg = rotRad * 180 / Math.PI;
+
+          results.push({ x: posX, y: posY, rotDeg: rotDeg, char: chars[i] });
+        }
+        return results;
+      }
+
+      // ─── Build complete SVG ───────────────────────
+      function buildSVG() {
+        var size = S.sealSize;
+        var bw = S.borderWidth;
+        var color = S.sealColor;
+        var ff = S.fontFamily;
+        var isYinwen = S.sealType === 'yinwen';
+        var ink = isYinwen ? '#ffffff' : color;
+        var isCircle = S.shape === 'circle';
+        var isEllipse = S.shape === 'ellipse';
+        var isRound = isCircle || isEllipse;
+        var cx = size / 2, cy = size / 2;
+        var fontWeight = S.bold ? 'bold' : 'normal';
+
+        // Border inset calculation
+        var borderInset = bw;
+        if (S.borderStyle === 'double') {
+          borderInset = bw + S.borderGap + bw * 0.6;
+        } else if (S.borderStyle === 'none') {
+          borderInset = 0;
+        }
+
+        // Padding for content
+        var pad = borderInset + 22;
+
+        var parts = [];
+
+        // SVG opening
+        parts.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '">');
+
+        // ── Defs ──
+        parts.push('<defs>');
+
+        // Inner clip for content
+        parts.push('<clipPath id="innerClip">');
+        if (isCircle) {
+          parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + (size / 2 - borderInset) + '"/>');
+        } else if (isEllipse) {
+          var crx = size / 2 - borderInset;
+          parts.push('<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + crx + '" ry="' + (crx * 0.75) + '"/>');
+        } else {
+          parts.push('<path d="' + roundedRectPath(borderInset, borderInset, size - borderInset * 2, size - borderInset * 2, Math.max(0, bw)) + '"/>');
+        }
+        parts.push('</clipPath>');
+        parts.push('</defs>');
+
+        // ── Background for yinwen ──
+        if (isYinwen) {
+          if (isCircle) {
+            parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + (size / 2 - borderInset) + '" fill="' + color + '"/>');
+          } else if (isEllipse) {
+            var bgRx = size / 2 - borderInset;
+            parts.push('<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + bgRx + '" ry="' + (bgRx * 0.75) + '" fill="' + color + '"/>');
+          } else {
+            parts.push('<path d="' + roundedRectPath(borderInset, borderInset, size - borderInset * 2, size - borderInset * 2, Math.max(0, bw)) + '" fill="' + color + '"/>');
+          }
+        }
+
+        // ── Main graphic group ──
+        parts.push('<g>');
+
+        // ── Borders ──
+        if (S.borderStyle !== 'none') {
+          if (isCircle) {
+            parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + (size / 2 - bw / 2) + '" fill="none" stroke="' + color + '" stroke-width="' + bw + '"/>');
+            if (S.borderStyle === 'double') {
+              var innerR = size / 2 - bw - S.borderGap - bw * 0.3;
+              parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + innerR + '" fill="none" stroke="' + color + '" stroke-width="' + (bw * 0.65) + '"/>');
+            }
+          } else if (isEllipse) {
+            var eRx = size / 2 - bw / 2;
+            var eRy = eRx * 0.75;
+            parts.push('<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + eRx + '" ry="' + eRy + '" fill="none" stroke="' + color + '" stroke-width="' + bw + '"/>');
+            if (S.borderStyle === 'double') {
+              var iRx = size / 2 - bw - S.borderGap - bw * 0.3;
+              var iRy = iRx * 0.75;
+              parts.push('<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + iRx + '" ry="' + iRy + '" fill="none" stroke="' + color + '" stroke-width="' + (bw * 0.65) + '"/>');
+            }
+          } else {
+            var cr = Math.max(0, bw * 2);
+            parts.push('<path d="' + roundedRectPath(bw / 2, bw / 2, size - bw, size - bw, cr) + '" fill="none" stroke="' + color + '" stroke-width="' + bw + '"/>');
+            if (S.borderStyle === 'double') {
+              var inset = bw + S.borderGap;
+              var cr2 = Math.max(0, cr - S.borderGap);
+              parts.push('<path d="' + roundedRectPath(inset, inset, size - inset * 2, size - inset * 2, cr2) + '" fill="none" stroke="' + color + '" stroke-width="' + (bw * 0.65) + '"/>');
+            }
+          }
+        }
+
+        // ── Clipped content ──
+        parts.push('<g clip-path="url(#innerClip)">');
+
+        if (S.layoutStyle === 'gongzhang' && isRound) {
+          // ─── 公章 layout ───
+          var innerR = size / 2 - borderInset;
+
+          // Each arc has its own margin from border
+          var topR = innerR - S.topMargin;
+          var botR = innerR - S.bottomMargin;
+          topR = Math.max(topR, innerR * 0.35);
+          botR = Math.max(botR, innerR * 0.35);
+
+          // Top arc text
+          if (S.arcTopText.length > 0) {
+            var topChars = computeArcChars(S.arcTopText, cx, cy, topR, S.topArcDeg, 'top', isEllipse, 0, S.topCharGap);
+            topChars.forEach(function (c) {
+              parts.push('<text x="' + c.x.toFixed(2) + '" y="' + c.y.toFixed(2) + '" transform="rotate(' + c.rotDeg.toFixed(2) + ',' + c.x.toFixed(2) + ',' + c.y.toFixed(2) + ')" fill="' + ink + '" font-family="' + ff + '" font-size="' + S.fontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="central">' + escXml(c.char) + '</text>');
+            });
+          }
+
+          // Bottom arc text
+          if (S.arcBottomText.length > 0) {
+            var botChars = computeArcChars(S.arcBottomText, cx, cy, botR, S.bottomArcDeg, 'bottom', isEllipse, 0, S.bottomCharGap);
+            botChars.forEach(function (c) {
+              parts.push('<text x="' + c.x.toFixed(2) + '" y="' + c.y.toFixed(2) + '" transform="rotate(' + c.rotDeg.toFixed(2) + ',' + c.x.toFixed(2) + ',' + c.y.toFixed(2) + ')" fill="' + ink + '" font-family="' + ff + '" font-size="' + S.bottomFontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="central">' + escXml(c.char) + '</text>');
+            });
+          }
+
+          // ── Center element ──
+          var centerY = cy;
+          if (S.centerStyle === 'star' && S.starSize > 0) {
+            var starR = S.starSize;
+            parts.push('<polygon points="' + starPoints(cx, centerY, starR, starR * 0.38) + '" fill="' + ink + '"/>');
+            var starBot = centerY + starR;
+          } else if (S.centerStyle === 'text' && S.centerSymbol.length > 0) {
+            parts.push('<text x="' + cx + '" y="' + centerY + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + (S.centerFontSize * 1.5) + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="central">' + escXml(S.centerSymbol) + '</text>');
+            var starBot = centerY + S.centerFontSize * 0.8;
+          } else {
+            var starBot = centerY - 4;
+          }
+
+          // ── Center text ──
+          var textStartY = starBot + S.centerOffset;
+          var maxW = isEllipse ? innerR * 0.75 * 2 : innerR * 2.1;
+
+          // Collision check with bottom arc — if center text collides, push it up
+          if (S.centerText1 || S.centerText2) {
+            var gap = S.centerLineGap;
+            var totalCenterH = 0;
+            if (S.centerText1) totalCenterH += S.centerFontSize * 1.2;
+            if (S.centerText2) totalCenterH += S.centerFontSize * 1.2;
+            if (S.centerText1 && S.centerText2) totalCenterH += gap;
+
+            if (S.arcBottomText.length > 0) {
+              var aspect = isEllipse ? 0.75 : 1;
+              var endA = Math.PI / 2 - S.bottomArcDeg * Math.PI / 360;
+              var nearA = Math.PI / 2 - 20 * Math.PI / 180;
+              var sampA = Math.max(endA, nearA);
+              var botArcTextTopY = cy + botR * aspect * Math.sin(sampA) - S.bottomFontSize * 0.75;
+              // Enforce centerBottomGap: center text must not get closer than this to bottom arc
+              botArcTextTopY -= S.centerBottomGap;
+              if (textStartY + totalCenterH > botArcTextTopY) {
+                textStartY = Math.max(cy - S.starSize + S.centerFontSize * 0.25, botArcTextTopY - totalCenterH);
+              }
+            }
+          }
+
+          if (S.centerText1) {
+            var twEstimate = S.centerText1.length * S.centerFontSize;
+            if (twEstimate > maxW) {
+              var sc = maxW / twEstimate;
+              parts.push('<text x="' + cx + '" y="' + textStartY.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + S.centerFontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging" transform="matrix(' + sc.toFixed(3) + ',0,0,1,' + (cx - cx * sc).toFixed(1) + ',0)">' + escXml(S.centerText1) + '</text>');
+            } else {
+              parts.push('<text x="' + cx + '" y="' + textStartY.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + S.centerFontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(S.centerText1) + '</text>');
+            }
+            textStartY += S.centerFontSize * 1.2 + S.centerLineGap;
+          }
+          if (S.centerText2) {
+            parts.push('<text x="' + cx + '" y="' + textStartY.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + (S.centerFontSize * 0.85) + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(S.centerText2) + '</text>');
+            textStartY += S.centerFontSize * 1.2;
+          }
+
+          // ── Serial number ──
+          if (S.serialNumber.length > 0) {
+            var snY = size - pad - S.centerFontSize * 0.9;
+            parts.push('<text x="' + cx + '" y="' + snY.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + (S.centerFontSize * 0.5) + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="auto">' + escXml(S.serialNumber) + '</text>');
+          }
+
+          // ── Sub text ──
+          if (S.gongzhangSubText.length > 0) {
+            var subY = size - pad - 4;
+            if (S.serialNumber.length > 0) subY -= S.centerFontSize * 0.7;
+            parts.push('<text x="' + cx + '" y="' + subY.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + (S.centerFontSize * 0.5) + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="auto">' + escXml(S.gongzhangSubText) + '</text>');
+          }
+
+        } else if (S.layoutStyle === 'fangzhang') {
+          // ─── 方章 layout ───
+          var fx = pad, fy = pad, fw = size - pad * 2, fh = size - pad * 2;
+          var texts = S.fangTexts.length > 0 ? S.fangTexts : ['印章'];
+          var fFZ = S.fontSize;
+
+          if (S.arrangement === 'vertical') {
+            var colCount = texts.length;
+            var colW = fFZ * 1.2;
+            var totalW = colCount * colW + (colCount - 1) * 4;
+            var sx = fx + (fw - totalW) / 2;
+            for (var col = colCount - 1; col >= 0; col--) {
+              var t = texts[colCount - 1 - col];
+              var colX = sx + col * (colW + 4) + colW / 2;
+              var charH = fFZ * 1.22;
+              var totalH = t.length * charH;
+              var tcy = fy + (fh - totalH) / 2;
+              for (var ci = 0; ci < t.length; ci++) {
+                parts.push('<text x="' + colX.toFixed(1) + '" y="' + tcy.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + fFZ + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(t[ci]) + '</text>');
+                tcy += charH;
+              }
+            }
+          } else {
+            var lineH = fFZ * 1.35;
+            var totalH = texts.length * lineH + (texts.length - 1) * S.fangLineGap;
+            var subH = S.fangzhangSubText ? fFZ * 0.55 * 1.4 + 10 : 0;
+            var sy = fy + (fh - totalH - subH) / 2;
+            for (var i = 0; i < texts.length; i++) {
+              parts.push('<text x="' + (fx + fw / 2).toFixed(1) + '" y="' + sy.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + fFZ + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(texts[i]) + '</text>');
+              sy += lineH + S.fangLineGap;
+            }
+            if (S.fangzhangSubText) {
+              sy += 10;
+              parts.push('<text x="' + (fx + fw / 2).toFixed(1) + '" y="' + sy.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + (fFZ * 0.55) + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(S.fangzhangSubText) + '</text>');
+            }
+          }
+
+        } else {
+          // ─── 自由排版 layout ───
+          var ffx = pad, ffy = pad, ffw = size - pad * 2, ffh = size - pad * 2;
+          var ftexts = S.freeTexts.length > 0 ? S.freeTexts : ['印章'];
+          var fFZ2 = S.fontSize;
+          var lineH2 = fFZ2 * 1.35;
+          var totalMain = ftexts.length * lineH2 + (ftexts.length - 1) * S.freeSpacing;
+          var subH2 = S.freeSubText ? fFZ2 * 0.55 * 1.4 + S.freeSpacing : 0;
+          var totalH2 = totalMain + subH2;
+          var fsy = ffy + (ffh - totalH2) / 2;
+          for (var j = 0; j < ftexts.length; j++) {
+            parts.push('<text x="' + (ffx + ffw / 2).toFixed(1) + '" y="' + fsy.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + fFZ2 + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(ftexts[j]) + '</text>');
+            fsy += lineH2 + S.freeSpacing;
+          }
+          if (S.freeSubText) {
+            fsy += S.freeSpacing;
+            parts.push('<text x="' + (ffx + ffw / 2).toFixed(1) + '" y="' + fsy.toFixed(1) + '" fill="' + ink + '" font-family="' + ff + '" font-size="' + (fFZ2 * 0.55) + '" font-weight="' + fontWeight + '" text-anchor="middle" dominant-baseline="hanging">' + escXml(S.freeSubText) + '</text>');
+          }
+        }
+
+        parts.push('</g>'); // end clipped content
+        parts.push('</g>'); // end main graphic group
+
+        parts.push('</svg>');
+        return parts.join('\n');
+      }
+
+      // ─── XML escape helper ────────────────────────
+      function escXml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+      }
+
+      // ─── Render ───────────────────────────────────
+      function render() {
+        readInputs();
+        var svgStr = buildSVG();
+        previewWrap.innerHTML = svgStr;
+        // Apply Canvas-based noise aging on top of the SVG
+        applyCanvasNoise();
+      }
+
+      // ─── Export PNG ───────────────────────────────
+      function exportPng() {
+        readInputs();
+        var svgStr = buildSVG();
+        var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var ximg = new Image();
+        ximg.onload = function () {
+          var scale = 3; // 3x resolution
+          var sz = S.sealSize * scale;
+          var canvas = document.createElement('canvas');
+          canvas.width = sz;
+          canvas.height = sz;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(ximg, 0, 0, sz, sz);
+          // Apply noise aging to export — with region clipping
+          if (S.realistic) {
+            try {
+              // Save clean copy
+              var cleanC = document.createElement('canvas');
+              cleanC.width = sz; cleanC.height = sz;
+              cleanC.getContext('2d').drawImage(canvas, 0, 0);
+
+              // 使用预渲染的噪点纹理 canvas（canvas 间 drawImage 不会污染目标 canvas）
+              ctx.save();
+              ctx.globalCompositeOperation = 'destination-in';
+              if (noiseTexReady && noiseTexCanvas) {
+                var texScale2 = 0.8 + S.wearLevel * 0.6;
+                var offsetX2 = Math.floor(Math.random() * 300);
+                var offsetY2 = Math.floor(Math.random() * 300);
+                var texSize2 = Math.max(sz * 1.2, sz);
+                ctx.drawImage(noiseTexCanvas, -offsetX2, -offsetY2, texSize2 * texScale2, texSize2 * texScale2);
+              } else {
+                var fb2 = generateExportNoise(sz, S.wearLevel);
+                ctx.drawImage(fb2, 0, 0);
+              }
+              ctx.restore();
+
+              // Restore outside region
+              var cx2 = sz / 2 + S.wearX * scale;
+              var cy2 = sz / 2 + S.wearY * scale;
+              var rr2 = (sz / 2) * (S.wearSize / 100);
+              var fe2 = S.wearFeather * scale;
+              var bm2 = document.createElement('canvas');
+              bm2.width = sz; bm2.height = sz;
+              var bmCtx2 = bm2.getContext('2d');
+              var ig2 = bmCtx2.createRadialGradient(cx2, cy2, Math.max(0, rr2 - fe2 * 0.3), cx2, cy2, rr2 + fe2);
+              ig2.addColorStop(0, 'rgba(255,255,255,0)');
+              ig2.addColorStop(0.5, 'rgba(255,255,255,0.15)');
+              ig2.addColorStop(1, 'rgba(255,255,255,1)');
+              bmCtx2.fillStyle = ig2; bmCtx2.fillRect(0, 0, sz, sz);
+
+              var rc2 = document.createElement('canvas');
+              rc2.width = sz; rc2.height = sz;
+              var rCtx3 = rc2.getContext('2d');
+              rCtx3.drawImage(cleanC, 0, 0);
+              rCtx3.globalCompositeOperation = 'destination-in';
+              rCtx3.drawImage(bm2, 0, 0);
+              ctx.drawImage(rc2, 0, 0);
+            } catch (e) {
+              console.warn('仿真导出处理异常，降级为干净导出:', e);
+              ctx.clearRect(0, 0, sz, sz);
+              ctx.drawImage(ximg, 0, 0, sz, sz);
+            }
+          }
+          canvas.toBlob(function (pngBlob) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(pngBlob);
+            a.download = 'seal_' + Date.now() + '.png';
+            a.click();
+            toastMsg('✅ PNG已导出（透明背景）');
+          }, 'image/png');
+          URL.revokeObjectURL(url);
+        };
+        ximg.onerror = function () {
+          toastMsg('❌ PNG导出失败，请尝试SVG导出');
+          URL.revokeObjectURL(url);
+        };
+        ximg.src = url;
+      }
+
+      // ─── Export SVG ───────────────────────────────
+      function exportSvg() {
+        readInputs();
+        var svgStr = buildSVG();
+        var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'seal_' + Date.now() + '.svg';
+        a.click();
+        URL.revokeObjectURL(url);
+        toastMsg('✅ SVG已导出（矢量文件）');
+      }
+
+      // ─── Presets ──────────────────────────────────
+      function applyPreset(type) {
+        switch (type) {
+          case 'company':
+            S.shape = 'circle'; S.sealType = 'yangwen'; S.layoutStyle = 'gongzhang';
+            S.borderStyle = 'single'; S.borderGap = 8;
+            S.sealSize = 420; S.borderWidth = 5;
+            S.fontSize = 56; S.bottomFontSize = 32; S.centerFontSize = 52; S.starSize = 140;
+            S.topCharGap = 0; S.bottomCharGap = 0;
+            S.topArcDeg = 260; S.bottomArcDeg = 160;
+            S.topMargin = 28; S.bottomMargin = 28;
+            S.centerLineGap = 10; S.centerOffset = 14; S.centerBottomGap = 10;
+            S.sealColor = '#c23b3b'; S.fontFamily = "'SimSun','STSong','NSimSun',serif";
+            S.centerStyle = 'star'; S.centerSymbol = '★';
+            S.arcTopText = '苏州市工业园区科技创新发展有限公司';
+            S.arcBottomText = 'NO.2024001'; S.centerText1 = ''; S.centerText2 = '';
+            S.serialNumber = ''; S.gongzhangSubText = '';
+            S.realistic = true; S.wearLevel = 1; S.wearX = 0; S.wearY = 0; S.wearSize = 80; S.wearFeather = 20; S.bold = true;
+            break;
+          case 'contract':
+            S.shape = 'circle'; S.sealType = 'yangwen'; S.layoutStyle = 'gongzhang';
+            S.borderStyle = 'single'; S.borderGap = 8;
+            S.sealSize = 420; S.borderWidth = 5;
+            S.fontSize = 56; S.bottomFontSize = 32; S.centerFontSize = 52; S.starSize = 140;
+            S.topCharGap = 0; S.bottomCharGap = 0;
+            S.topArcDeg = 260; S.bottomArcDeg = 160;
+            S.topMargin = 28; S.bottomMargin = 28;
+            S.centerLineGap = 10; S.centerOffset = 14; S.centerBottomGap = 10;
+            S.sealColor = '#c23b3b'; S.fontFamily = "'SimSun','STSong','NSimSun',serif";
+            S.centerStyle = 'star'; S.centerSymbol = '★';
+            S.arcTopText = '某某科技有限公司'; S.arcBottomText = 'NO.2024002';
+            S.centerText1 = '合同章'; S.centerText2 = '';
+            S.serialNumber = ''; S.gongzhangSubText = '';
+            S.realistic = true; S.wearLevel = 1; S.wearX = 0; S.wearY = 0; S.wearSize = 80; S.wearFeather = 20; S.bold = true;
+            break;
+          case 'finance':
+            S.shape = 'circle'; S.sealType = 'yangwen'; S.layoutStyle = 'gongzhang';
+            S.borderStyle = 'single'; S.borderGap = 8;
+            S.sealSize = 420; S.borderWidth = 5;
+            S.fontSize = 56; S.bottomFontSize = 32; S.centerFontSize = 52; S.starSize = 140;
+            S.topCharGap = 0; S.bottomCharGap = 0;
+            S.topArcDeg = 260; S.bottomArcDeg = 160;
+            S.topMargin = 28; S.bottomMargin = 28;
+            S.centerLineGap = 10; S.centerOffset = 14; S.centerBottomGap = 10;
+            S.sealColor = '#c23b3b'; S.fontFamily = "'SimSun','STSong','NSimSun',serif";
+            S.centerStyle = 'star'; S.centerSymbol = '★';
+            S.arcTopText = '某某科技有限公司'; S.arcBottomText = 'NO.2024003';
+            S.centerText1 = '财务章'; S.centerText2 = '';
+            S.serialNumber = ''; S.gongzhangSubText = '';
+            S.realistic = true; S.wearLevel = 1; S.wearX = 0; S.wearY = 0; S.wearSize = 80; S.wearFeather = 20; S.bold = true;
+            break;
+          case 'personal':
+            S.shape = 'circle'; S.sealType = 'yangwen'; S.layoutStyle = 'fangzhang'; S.arrangement = 'vertical';
+            S.borderStyle = 'single'; S.borderGap = 8;
+            S.sealSize = 260; S.borderWidth = 4; S.fontSize = 48;
+            S.fangLineGap = 8;
+            S.sealColor = '#c23b3b'; S.fontFamily = "'KaiTi','STKaiti',serif";
+            S.fangTexts = ['张', '三']; S.fangzhangSubText = '';
+            S.realistic = true; S.wearLevel = 1; S.wearX = 0; S.wearY = 0; S.wearSize = 80; S.wearFeather = 20; S.bold = true;
+            break;
+        }
+        updateUI(); render(); toastMsg('✨ 已应用预设');
+      }
+
+      // ─── Event bindings ───────────────────────────
+      function bindEvents() {
+        document.querySelectorAll('#shapeBtns .seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var ns = b.dataset.shape;
+            if (ns === 'square' && S.layoutStyle === 'gongzhang') S.layoutStyle = 'fangzhang';
+            S.shape = ns; updateUI(); render();
+          });
+        });
+        document.querySelectorAll('#sealTypeBtns .seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () { S.sealType = b.dataset.type; render(); });
+        });
+        document.querySelectorAll('#layoutStyleBtns .seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var nl = b.dataset.layout;
+            if (nl === 'gongzhang' && S.shape === 'square') S.shape = 'circle';
+            S.layoutStyle = nl; updateUI(); render();
+          });
+        });
+        document.querySelectorAll('#borderStyleBtns .seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () { S.borderStyle = b.dataset.border; updateUI(); render(); });
+        });
+        document.querySelectorAll('#centerStyleBtns .seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () { S.centerStyle = b.dataset.center; updateUI(); render(); });
+        });
+        document.querySelectorAll('#arrangementBtns .seg-btn').forEach(function (b) {
+          b.addEventListener('click', function () { S.arrangement = b.dataset.arrange; render(); });
+        });
+
+        ['sealSize', 'borderWidth', 'borderGap', 'fontSize', 'bottomFontSize', 'centerFontSize', 'starSize', 'topCharGap', 'bottomCharGap', 'topArcDeg', 'bottomArcDeg', 'topMargin', 'bottomMargin', 'centerLineGap', 'centerOffset', 'centerBottomGap', 'freeSpacing', 'fangLineGap', 'wearLevel', 'wearX', 'wearY', 'wearSize', 'wearFeather'].forEach(function (id) {
+          document.getElementById(id).addEventListener('input', function () { syncDisp(); render(); });
+        });
+
+        document.getElementById('sealColor').addEventListener('input', function () {
+          S.sealColor = document.getElementById('sealColor').value; updateColorUI(); render();
+        });
+        document.getElementById('colorPresets').addEventListener('click', function (e) {
+          var sw = e.target.closest('.color-swatch'); if (!sw) return;
+          var c = sw.dataset.color; document.getElementById('sealColor').value = c; S.sealColor = c; updateColorUI(); render();
+        });
+        document.getElementById('fontFamily').addEventListener('change', function () {
+          S.fontFamily = document.getElementById('fontFamily').value; render();
+        });
+
+        ['arcTopText', 'arcBottomText', 'centerText1', 'centerText2', 'serialNumber', 'gongzhangSubText', 'fangzhangSubText', 'freeSubText', 'centerSymbol'].forEach(function (id) {
+          document.getElementById(id).addEventListener('input', render);
+        });
+
+        document.getElementById('fangzhangRows').addEventListener('input', render);
+        document.getElementById('freeRows').addEventListener('input', render);
+
+        document.getElementById('realisticToggle').addEventListener('change', function () {
+          S.realistic = this.checked; updateUI(); render();
+        });
+        document.getElementById('boldToggle').addEventListener('change', function () {
+          S.bold = this.checked; render();
+        });
+
+        document.getElementById('fangAddRowBtn').addEventListener('click', function () {
+          var rows = document.querySelectorAll('#fangzhangRows .input-row');
+          if (rows.length >= 8) { toastMsg('最多8行'); return; }
+          var r = document.createElement('div'); r.className = 'input-row';
+          r.innerHTML = '<span class="num">' + (rows.length + 1) + '</span><input type="text" class="fang-text-input" placeholder="第' + (rows.length + 1) + '行" maxlength="20">';
+          document.getElementById('fangzhangRows').appendChild(r); render();
+        });
+        document.getElementById('fangRemoveRowBtn').addEventListener('click', function () {
+          var rows = document.querySelectorAll('#fangzhangRows .input-row');
+          if (rows.length <= 1) { toastMsg('至少1行'); return; }
+          rows[rows.length - 1].remove(); render();
+        });
+        document.getElementById('freeAddRowBtn').addEventListener('click', function () {
+          var rows = document.querySelectorAll('#freeRows .input-row');
+          if (rows.length >= 8) { toastMsg('最多8行'); return; }
+          var r = document.createElement('div'); r.className = 'input-row';
+          r.innerHTML = '<span class="num">' + (rows.length + 1) + '</span><input type="text" class="free-text-input" placeholder="第' + (rows.length + 1) + '行" maxlength="20">';
+          document.getElementById('freeRows').appendChild(r); render();
+        });
+        document.getElementById('freeRemoveRowBtn').addEventListener('click', function () {
+          var rows = document.querySelectorAll('#freeRows .input-row');
+          if (rows.length <= 1) { toastMsg('至少1行'); return; }
+          rows[rows.length - 1].remove(); render();
+        });
+
+        document.getElementById('exportPngBtn').addEventListener('click', exportPng);
+        document.getElementById('exportSvgBtn').addEventListener('click', exportSvg);
+        document.querySelectorAll('.quick-preset').forEach(function (b) {
+          b.addEventListener('click', function () { applyPreset(b.dataset.preset); });
+        });
+      }
+
+      function updateColorUI() {
+        document.querySelectorAll('#colorPresets .color-swatch').forEach(function (sw) {
+          sw.classList.toggle('active', sw.dataset.color === S.sealColor);
+        });
+      }
+
+      // ─── Init ─────────────────────────────────────
+      bindEvents(); readInputs(); syncDisp(); updateUI(); render();
+    })();
+  </script>
+</body>
+
+</html>
+</body>
+
+</html>
+</body>
