@@ -2,6 +2,14 @@
 
 纯前端 SVG 矢量印章在线生成器，支持公章、方章、自由排版等多种样式，带仿真老化效果，无需后端服务。
 
+## 预览
+
+![公章样式预览](1.png)
+*公章样式（朱文/阳文），带仿真老化效果*
+
+![方章与椭圆样式](2.png)
+*方章样式及椭圆印章，多种排版和颜色*
+
 ## 功能
 
 - **印章形状**：圆形、椭圆形、方形
@@ -23,16 +31,16 @@
 
 直接用浏览器打开 `seal-designer.html` 即可，不需要安装任何东西。
 
-```
+```bash
 # 克隆仓库
 git clone https://github.com/lyhzs/seal-designer.git
 cd seal-designer
 
-# 双击 seal-designer.html 或用浏览器打开
+# 直接双击或用浏览器打开
 start seal-designer.html
 ```
 
-因为文件需加载 `sealNoisy.png` 纹理资源，建议直接在**文件系统中打开**，部分浏览器在 `file://` 协议下可以正常加载本地资源。
+因为文件需加载 `sealNoisy.png` 纹理资源，建议在**文件系统**中直接打开，部分浏览器在 `file://` 协议下可以正常加载本地资源。
 
 ## 项目结构
 
@@ -40,6 +48,8 @@ start seal-designer.html
 seal-designer/
 ├── seal-designer.html    # 主应用（HTML + CSS + JavaScript 全功能单文件）
 ├── sealNoisy.png         # 噪点纹理图（盖印磨损老化效果）
+├── 1.png                 # 预览截图
+├── 2.png                 # 预览截图
 └── README.md
 ```
 
@@ -50,6 +60,7 @@ seal-designer/
 - **视觉一致**：预览和导出的老化效果使用同一套纹理方案，所见即所得
 - **参数丰富**：字形、弧线、间距、位置、颜色全部可调
 - **单文件架构**：所有逻辑在单个 HTML 中，便于分享和单机使用
+
 ## Tech Stack
 
 Pure HTML + CSS + JavaScript (Canvas 2D + SVG). Zero dependencies.
